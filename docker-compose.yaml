@@ -1,22 +1,22 @@
+version: '3.7'
 services:
-  # --------- T265 REALSENSE ------------
   ros-px4-foxy:
     image: realsense:latest
     container_name: realsense
     build:
       context: .
       dockerfile: Dockerfile
-    # volumes:
-    #   - /etc/group:/etc/group:ro
-    #   - /etc/passwd:/etc/passwd:ro
-    #   - /etc/shadow:/etc/shadow:ro
-    #   - /etc/sudoers.d:/etc/sudoers.d:ro
-    #   - /home:/home:rw
-    #   - /home/${HOST_USERNAME}/Volumes:/edra/Volumes
-    # environment:
-      # - DISPLAY=:0
-      # - LIBGL_ALWAYS_SOFTWARE=1
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/video0:/dev/video0 
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /dev:/dev
+    environment:
+      - DISPLAY=${DISPLAY}
+      - LIBGL_ALWAYS_SOFTWARE=1
     network_mode: "host"
     stdin_open: true
     tty: true
+    privileged: true
 

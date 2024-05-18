@@ -1,6 +1,5 @@
 FROM osrf/ros:foxy-desktop
 
-
 RUN apt update && apt install -y \
     git \
     libssl-dev \
@@ -11,9 +10,11 @@ RUN apt update && apt install -y \
     libgl1-mesa-dev \
     libglu1-mesa-dev \
     wget \
-    tar
+    tar \
+    udev \
+    ros-foxy-diagnostic-updater  # Adicione esta linha para instalar o diagnostic_updater
 
-# baixar codigo fonte do repo
+# Baixar código fonte do repositório
 RUN wget https://github.com/IntelRealSense/librealsense/archive/refs/tags/v2.50.0.tar.gz \
     && tar -xvzf v2.50.0.tar.gz \
     && cd librealsense-2.50.0
@@ -32,12 +33,14 @@ RUN mkdir -p ~/ros2_ws/src \
     && cd ~/ros2_ws
 
 RUN apt-get install python3-rosdep -y
-RUN rosdep init \
-    rosdep update \
-    rosdep init \
+
+RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then \
+      rosdep init; \
+    fi && \
+    rosdep update && \
     rosdep install -i --from-path src --rosdistro foxy --skip-keys=librealsense2 -y
 
 WORKDIR ~/ros2_ws
-RUN colcon build
 
+RUN colcon build
 
