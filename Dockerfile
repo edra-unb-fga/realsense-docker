@@ -1,5 +1,6 @@
 FROM osrf/ros:foxy-desktop
 
+# Instalar dependências
 RUN apt update && apt install -y \
     git \
     libssl-dev \
@@ -12,9 +13,11 @@ RUN apt update && apt install -y \
     wget \
     tar \
     udev \
-    ros-foxy-diagnostic-updater  # Adicione esta linha para instalar o diagnostic_updater
+    ros-foxy-diagnostic-updater \
+    ros-foxy-ament-cmake \
+    python3-colcon-common-extensions
 
-# Baixar código fonte do repositório
+# Baixar código fonte do librealsense
 RUN wget https://github.com/IntelRealSense/librealsense/archive/refs/tags/v2.50.0.tar.gz \
     && tar -xvzf v2.50.0.tar.gz \
     && cd librealsense-2.50.0
@@ -27,10 +30,11 @@ RUN mkdir build \
     && make \
     && make install
 
-RUN mkdir -p ~/ros2_ws/src \
-    && cd ~/ros2_ws/src/ \
+# Configurar workspace ROS
+RUN mkdir -p /root/ros2_ws/src \
+    && cd /root/ros2_ws/src/ \
     && git clone --branch ros2-legacy https://github.com/IntelRealSense/realsense-ros.git \
-    && cd ~/ros2_ws
+    && cd /root/ros2_ws
 
 RUN apt-get install python3-rosdep -y
 
@@ -40,7 +44,11 @@ RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then \
     rosdep update && \
     rosdep install -i --from-path src --rosdistro foxy --skip-keys=librealsense2 -y
 
-WORKDIR ~/ros2_ws
+WORKDIR /root/ros2_ws
 
-RUN colcon build
+# Adicionar configuração do ambiente
+RUN echo "source /opt/ros/foxy/setup.bash" >> ~/.bashrc \
+    && echo "source /root/ros2_ws/install/setup.bash" >> ~/.bashrc
+
+RUN /bin/bash -c "source /opt/ros/foxy/setup.bash; colcon build"
 
