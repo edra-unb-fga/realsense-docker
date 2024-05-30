@@ -3,9 +3,10 @@
 FROM ros:foxy
 
 RUN apt update && apt install -y \
-	ros-foxy-realsense2-camera \
-	&& rm -rf /var/lub/apt/lists/*
+    ros-foxy-realsense2-camera \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN echo "source /opt/ros/foxy/setup.bash" >> /root/.bashrc
 
 CMD ["/bin/bash"]
+

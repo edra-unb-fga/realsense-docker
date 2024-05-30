@@ -1,9 +1,11 @@
 #!/bin/bash
+export ROS_DOMAIN_ID=1
+export ROS_LOCALHOST_ONLY=0
 
-IMAGE_NAME=realsense
+IMAGE_NAME=t265_container
 
 # Allow local connections to the X server for GUI applications in Docker
-xhost +
+xhost +local:docker
 
 # Setup for X11 forwarding to enable GUI
 XAUTH=/tmp/.docker.xauth
@@ -25,3 +27,4 @@ docker run -it --rm \
     --env="ROS_DOMAIN_ID=1" \
     $IMAGE_NAME \
     ros2 launch realsense2_camera rs_launch.py enable_pose:=true camera_name:=t265 device_type:=t265 fisheye_width:=848 fisheye_height:=800 unite_imu_method:=linear_interpolation
+
